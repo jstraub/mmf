@@ -2,11 +2,11 @@ This library so far mainly provides the means to optimize the rotation
 of a Manhattan Frame (MF) given surface normal associations. 
 
 If you use this code for research please cite 
-'''
+```
 A Mixture of Manhattan Frames: Beyond the Manhattan World (Julian
 Straub, Guy Rosman, Oren Freifeld, John J. Leonard, John W. Fisher
 III), In CVPR, 2014.
-'''
+```
 
 ### Dependencies
 
