@@ -1,0 +1,9 @@
+build
+pod-build
+*~
+*.pyc
+*.csv
+tags
+*.swp
+*.swo
+*.lbl
