@@ -15,8 +15,8 @@
 // CUDA runtime
 #include <cuda_runtime.h>
 // Utilities and system includes
-#include <mmf/defines.h>
-#include <mmf/helper_cuda.h>
+//#include <mmf/defines.h>
+#include <nvidia/helper_cuda.h>
 
 #include <jsCore/clDataGpu.hpp>
 #include <jsCore/timer.hpp>

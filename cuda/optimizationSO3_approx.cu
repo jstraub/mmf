@@ -4,7 +4,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#include <mmf/helper_cuda.h>
+#include <nvidia/helper_cuda.h>
 #include <mmf/cudaSphereHelpers.h>
 
 #define BLOCK_SIZE 256

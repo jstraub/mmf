@@ -14,9 +14,9 @@
 #include <cuda_runtime.h>
 // Utilities and system includes
 //#include <helper_functions.h>
-#include <mmf/helper_cuda.h>
+#include <nvidia/helper_cuda.h>
 
-#include <mmf/defines.h>
+//#include <mmf/defines.h>
 #include <mmf/sphereSimple.hpp>
 #include <mmf/optimizationSO3.hpp>
 

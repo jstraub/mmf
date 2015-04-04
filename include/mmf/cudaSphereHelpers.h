@@ -1,11 +1,13 @@
+/* Copyright (c) 2015, Julian Straub <jstraub@csail.mit.edu> Licensed
+ * under the MIT license. See the license file LICENSE.
+ */
 
 #ifndef CUDA_SPHERE_HELPERS_H
 #define CUDA_SPHERE_HELPERS_H
 
 #include <stdint.h>
 #include <stdio.h>
-
-#include <mmf/helper_cuda.h>
+#include <nvidia/helper_cuda.h>
 
 // ------------------------------------------------------------------------
 // copied from ../dpMM/cuda/cuda_global.h

@@ -47,7 +47,7 @@ include_directories(
   ${EIGEN3_INCLUDE_DIR}
   ${PCL_INCLUDE_DIRS}
   #  /usr/include
-  $ENV{WORKSPACE_HOME}/research/global/include
+#  $ENV{WORKSPACE_HOME}/research/global/include
   #/usr/include/pcl-1.7/
   #  /usr/include/ni
   #  /usr/include/vtk-5.8/
@@ -57,7 +57,7 @@ include_directories(
 link_directories(
   ${PCL_LIBRARY_DIRS}
   ${Boost_LIBRARY_DIRS}
-  $ENV{WORKSPACE_HOME}/research/global/lib
+#  $ENV{WORKSPACE_HOME}/research/global/lib
   #  $ENV{WORKSPACE_HOME}/3rdparty/pcl-pcl-1.7.1/build
   )
 
@@ -69,12 +69,12 @@ cuda_add_library(mmf SHARED
   ./cuda/optimizationSO3_approx.cu
   ./cuda/optimizationSO3.cu
   # jsCOre
-  ./cuda/vectorSum_kernel.cu
-  ./cuda/labelMap_kernel.cu
-  ./cuda/copy_kernel.cu
+#  ./cuda/vectorSum_kernel.cu
+#  ./cuda/labelMap_kernel.cu
+#  ./cuda/copy_kernel.cu
   )
-target_link_libraries(mmf
-  dpMMlowVar)
+target_link_libraries(mmf)
+#  dpMMlowVar)
 
 #add_subdirectory(./librealtimeMF)
 
