@@ -7,6 +7,8 @@ A Mixture of Manhattan Frames: Beyond the Manhattan World (Julian
 Straub, Guy Rosman, Oren Freifeld, John J. Leonard, John W. Fisher
 III), In CVPR, 2014.
 ```
+More information about the theory behind MFs can be found at 
+http://www.jstraub.de/a-mixture-of-manhattan-frames-beyond-the-manhattan-world/
 
 ### Dependencies
 
