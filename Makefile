@@ -26,6 +26,9 @@ ifeq "$(BUILD_TYPE)" ""
 BUILD_TYPE="Release"
 endif
 
+me: pod-build/Makefile
+	$(MAKE) -C pod-build all install
+
 all:
 	@[ -d $(BUILD_PREFIX) ] || mkdir -p $(BUILD_PREFIX) || exit 1
 	@for subdir in $(SUBDIRS); do \
@@ -34,6 +37,7 @@ all:
     echo "-------------------------------------------"; \
     $(MAKE) -C $$subdir all || exit 2; \
   done
+	@$(MAKE) -C pod-build all install
 	@# Place additional commands here if you have any
 
 clean:
