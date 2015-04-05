@@ -84,15 +84,23 @@ target_link_libraries(mmf)
 #  ARCHIVE DESTINATION lib
 #  )
 pods_install_libraries(mmf)
+pods_install_headers(
+  ./include/mmf/sphereSimple.hpp
+  ./include/mmf/cudaSphereHelpers.h
+  ./include/mmf/optimizationSO3.hpp
+  ./include/mmf/optimizationSO3_vmf.hpp
+  ./include/mmf/optimizationSO3_approx.hpp
+  ./include/mmf/root_includes.hpp
+  DESTINATION mmf)
 
-install(DIRECTORY include/mmf/ DESTINATION include/mmf/
-  FILES_MATCHING PATTERN "*.h")
-#install(DIRECTORY include/nvidia DESTINATION include/nvidia
-#          FILES_MATCHING PATTERN "*.h")
-install(DIRECTORY include/mmf/ DESTINATION include/mmf/
-  FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY include/jsCore/ DESTINATION include/jsCore/
-  FILES_MATCHING PATTERN "*.hpp")
-install(DIRECTORY include/nvidia/ DESTINATION include/nvidia/
-  FILES_MATCHING PATTERN "*.h")
-
+#install(DIRECTORY include/mmf/ DESTINATION include/mmf/
+#  FILES_MATCHING PATTERN "*.h")
+##install(DIRECTORY include/nvidia DESTINATION include/nvidia
+##          FILES_MATCHING PATTERN "*.h")
+#install(DIRECTORY include/mmf/ DESTINATION include/mmf/
+#  FILES_MATCHING PATTERN "*.hpp")
+#install(DIRECTORY include/jsCore/ DESTINATION include/jsCore/
+#  FILES_MATCHING PATTERN "*.hpp")
+#install(DIRECTORY include/nvidia/ DESTINATION include/nvidia/
+#  FILES_MATCHING PATTERN "*.h")
+#
