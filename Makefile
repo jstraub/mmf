@@ -1,6 +1,6 @@
 # Default pod makefile distributed with pods version: 12.11.14
 
-default_target: all
+default_target: main
 
 # get a list of subdirs to build by reading tobuild.txt
 SUBDIRS:=$(shell grep -v "^\#" tobuild.txt)
@@ -26,10 +26,10 @@ ifeq "$(BUILD_TYPE)" ""
 BUILD_TYPE="Release"
 endif
 
-me: pod-build/Makefile
+all: pod-build/Makefile
 	$(MAKE) -C pod-build all install
 
-all:
+main:
 	@[ -d $(BUILD_PREFIX) ] || mkdir -p $(BUILD_PREFIX) || exit 1
 	@for subdir in $(SUBDIRS); do \
     echo "\n-------------------------------------------"; \
