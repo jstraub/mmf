@@ -66,6 +66,7 @@ cuda_add_library(mmf SHARED
   ./src/optimizationSO3.cpp
   ./src/optimizationSO3_approx.cpp
   ./src/optimizationSO3_vmf.cpp
+  ./src/optimizationSO3_vmfCF.cpp
   ./cuda/optimizationSO3_approx.cu
   ./cuda/optimizationSO3.cu
   # jsCOre
@@ -89,6 +90,7 @@ pods_install_headers(
   ./include/mmf/cudaSphereHelpers.h
   ./include/mmf/optimizationSO3.hpp
   ./include/mmf/optimizationSO3_vmf.hpp
+  ./include/mmf/optimizationSO3_vmfCF.hpp
   ./include/mmf/optimizationSO3_approx.hpp
   ./include/mmf/root_includes.hpp
   DESTINATION mmf)
