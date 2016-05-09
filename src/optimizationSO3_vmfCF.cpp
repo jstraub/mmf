@@ -19,18 +19,22 @@ float mmf::OptSO3vMFCF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t&
 void mmf::OptSO3vMFCF::conjugateGradientPostparation_impl(Matrix3f& R)
 { };
 
-double mmf::OptSO3vMFCF::conjugateGradientCUDA(Matrix3f& R, uint32_t maxIter) {
+void mmf::OptSO3vMFCF::computeJacobian(Matrix3f&J, Matrix3f& R, float N) 
+{ };
+
+float mmf::OptSO3vMFCF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
+    uint32_t n, uint32_t maxIter) {
   Eigen::Matrix3f N = Eigen::Matrix3f::Zero();
   for (uint32_t j=0; j<6; ++j) { 
-    if(j%2 ==0){
-      N += -R.col(j/2)*this->cld_.xSums().col(j).transpose();
-    }else{
-      N += R.col(j/2)*this->cld_.xSums().col(j).transpose();
-    }
+    Eigen::Vector3f m = Eigen::Vector3f::Zero();
+    m(j/2) = j%2==0?-1.:1.;
+    N += m*this->cld_.xSums().col(j).transpose();
   }
   Eigen::JacobiSVD<Eigen::Matrix3f> svd(N,Eigen::ComputeThinU|Eigen::ComputeThinV);
   R = svd.matrixV()*svd.matrixU().transpose();
   if (R.determinant() < 0.) R *= -1.;
+//  std::cout << "N" << std::endl << N << std::endl;
+//  std::cout << "R" << std::endl << R << std::endl;
   return (N*R).trace();
 }
 

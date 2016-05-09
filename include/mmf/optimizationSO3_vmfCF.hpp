@@ -30,18 +30,15 @@ class OptSO3vMFCF : public OptSO3
 {
   public:
   OptSO3vMFCF(float *d_weights =NULL):
-    OptSO3(sigma,t_max, dt, d_weights)
-  {
-//    t_max_ = 5.0f;
-//    dt_ = 0.05f; // 0.1
-  };
+    OptSO3(1.,1.,0.1,d_weights)
+  { };
 
   virtual ~OptSO3vMFCF() { };
 
-  virtual double conjugateGradientCUDA(Matrix3f& R, uint32_t maxIter=0);
-
 protected:
 
+  virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,
+    uint32_t N, uint32_t maxIter);
   virtual void conjugateGradientPostparation_impl(Matrix3f& R);
   virtual float conjugateGradientPreparation_impl(Matrix3f& R, uint32_t& N);
   /* evaluate cost function for a given assignment of npormals to axes */
