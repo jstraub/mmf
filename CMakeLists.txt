@@ -64,11 +64,14 @@ link_directories(
 cuda_add_library(mmf SHARED
   #  ./src/realtimeMF.cpp
   ./src/optimizationSO3.cpp
+  ./src/optimizationSO3_gd.cpp
   ./src/optimizationSO3_approx.cpp
+  ./src/optimizationSO3_approx_gd.cpp
   ./src/optimizationSO3_vmf.cpp
   ./src/optimizationSO3_vmfCF.cpp
   ./cuda/optimizationSO3_approx.cu
   ./cuda/optimizationSO3.cu
+  ./cuda/optimizationSO3_direct_gd.cu
   # jsCOre
 #  ./cuda/vectorSum_kernel.cu
 #  ./cuda/labelMap_kernel.cu
@@ -89,9 +92,11 @@ pods_install_headers(
   ./include/mmf/sphereSimple.hpp
   ./include/mmf/cudaSphereHelpers.h
   ./include/mmf/optimizationSO3.hpp
+  ./include/mmf/optimizationSO3_gd.hpp
   ./include/mmf/optimizationSO3_vmf.hpp
   ./include/mmf/optimizationSO3_vmfCF.hpp
   ./include/mmf/optimizationSO3_approx.hpp
+  ./include/mmf/optimizationSO3_approx_gd.hpp
   ./include/mmf/root_includes.hpp
   DESTINATION mmf)
 

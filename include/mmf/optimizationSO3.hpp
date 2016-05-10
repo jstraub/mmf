@@ -47,6 +47,8 @@ extern void loadRGBvaluesForMFaxes();
 
 namespace mmf{
 
+/// Implements Conjugate Gradient Optimization on SO3 using GPU
+/// optimizations
 class OptSO3
 {
 protected:

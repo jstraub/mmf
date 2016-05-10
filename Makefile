@@ -66,9 +66,11 @@ configure:
 
 checkout:
 	git clone git@github.com:jstraub/jsCore.git
+	git clone git@github.com:jstraub/manifold.git
 
 update:
 	cd jsCore; git pull; cd -
+	cd manifold; git pull; cd -
 
 # other (custom) targets are passed through to the cmake-generated Makefile
 %::
