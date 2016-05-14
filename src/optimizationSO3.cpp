@@ -27,8 +27,8 @@ void mmf::OptSO3::init()
 mmf::OptSO3::~OptSO3()
 {
   //    checkCudaErrors(cudaFree(d_q_));
-//  checkCudaErrors(cudaFree(d_z));
-//  checkCudaErrors(cudaFree(d_errs_));
+  //  checkCudaErrors(cudaFree(d_z));
+  //  checkCudaErrors(cudaFree(d_errs_));
   if(d_cost != NULL)
   {
     checkCudaErrors(cudaFree(d_cost));
@@ -36,8 +36,8 @@ mmf::OptSO3::~OptSO3()
     checkCudaErrors(cudaFree(d_mu_));
     checkCudaErrors(cudaFree(d_N_));
   }
-//  free(h_z);
-//  free(h_errs_);
+  //  free(h_z);
+  //  free(h_errs_);
 };
 
 double mmf::OptSO3::D_KL_axisUnif()

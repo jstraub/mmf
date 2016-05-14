@@ -26,9 +26,9 @@ float mmf::OptSO3ApproxGD::conjugateGradientPreparation_impl(Matrix3f& R, uint32
 #ifndef NDEBUG
   cout<<"R: "<<endl<<R<<endl;
 //  cout<<"Rkarch: "<<endl<<Rkarch<<endl<<"det(Rkarch)="<<Rkarch.determinant()<<endl;
-#endif
   std::cout << "qKarch_" << std::endl;
   std::cout << qKarch_ << std::endl;
+#endif
 //  t0.tic();
   computeSuffcientStatistics();
 //  t0.toctic("----- sufficient statistics");
@@ -91,6 +91,7 @@ void mmf::OptSO3ApproxGD::ComputeJacobian(const SO3f& theta,
   if(J) *J = Vector3f::Zero();
   if(f) *f = 0.;
   for (uint32_t j=0; j<6; ++j) { 
+    if (Ns_(j) == 0) continue;
     Eigen::Vector3f m = Eigen::Vector3f::Zero();
     m(j/2) = j%2==0?-1.:1.;
     float dot = max(-1.0f,min(1.0f,qKarch_.col(j).dot(R*m)));
@@ -194,9 +195,9 @@ void mmf::OptSO3ApproxGD::computeSuffcientStatistics()
   for (uint32_t j=0; j<6; ++j)
   {
     Rnorths.middleRows<2>(j*2) = S2_.north_R_TpS2(qKarch_.col(j)).topRows<2>();
-    cout<<qKarch_.col(j).transpose()<<endl;
-    cout<<Rnorths.middleRows<2>(j*2)<<endl;
-    cout<<"----"<<endl;
+//    cout<<qKarch_.col(j).transpose()<<endl;
+//    cout<<Rnorths.middleRows<2>(j*2)<<endl;
+//    cout<<"----"<<endl;
   }
   cout<<Rnorths<<endl;
 
@@ -216,7 +217,6 @@ void mmf::OptSO3ApproxGD::computeSuffcientStatistics()
     Ns_(j) = SSs(6,j);
     //cout<<"@j="<<j<<"\t"<< Ss_[j]<<endl;
   }
-  cout<<xSums_<<endl;
-  cout<<Ns_<<endl;
-  
+//  cout<<xSums_<<endl;
+//  cout<<Ns_<<endl;
 }
