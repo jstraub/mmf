@@ -17,16 +17,18 @@ float mmf::OptSO3ApproxGD::conjugateGradientPreparation_impl(Matrix3f& R, uint32
   qKarch_ = karcherMeans(qKarch_, 5.e-5, 10);
 //  t0.toctic("----- karcher mean");
   // compute a rotation matrix from the karcher means (not necessary)
-  Matrix3f Rkarch;
-  Rkarch.col(0) =  qKarch_.col(0);
-  Rkarch.col(1) =  qKarch_.col(2) - qKarch_.col(2).dot(qKarch_.col(0))
-    *qKarch_.col(0);
-  Rkarch.col(1) /= Rkarch.col(1).norm();
-  Rkarch.col(2) = Rkarch.col(0).cross(Rkarch.col(1));
+//  Matrix3f Rkarch;
+//  Rkarch.col(0) =  qKarch_.col(0);
+//  Rkarch.col(1) =  qKarch_.col(2) - qKarch_.col(2).dot(qKarch_.col(0))
+//    *qKarch_.col(0);
+//  Rkarch.col(1) /= Rkarch.col(1).norm();
+//  Rkarch.col(2) = Rkarch.col(0).cross(Rkarch.col(1));
 #ifndef NDEBUG
   cout<<"R: "<<endl<<R<<endl;
-  cout<<"Rkarch: "<<endl<<Rkarch<<endl<<"det(Rkarch)="<<Rkarch.determinant()<<endl;
+//  cout<<"Rkarch: "<<endl<<Rkarch<<endl<<"det(Rkarch)="<<Rkarch.determinant()<<endl;
 #endif
+  std::cout << "qKarch_" << std::endl;
+  std::cout << qKarch_ << std::endl;
 //  t0.tic();
   computeSuffcientStatistics();
 //  t0.toctic("----- sufficient statistics");
@@ -192,11 +194,11 @@ void mmf::OptSO3ApproxGD::computeSuffcientStatistics()
   for (uint32_t j=0; j<6; ++j)
   {
     Rnorths.middleRows<2>(j*2) = S2_.north_R_TpS2(qKarch_.col(j)).topRows<2>();
-    //cout<<qKarch_.col(j).transpose()<<endl;
-    //cout<<Rnorths.middleRows<2>(j*2)<<endl;
-    //cout<<"----"<<endl;
+    cout<<qKarch_.col(j).transpose()<<endl;
+    cout<<Rnorths.middleRows<2>(j*2)<<endl;
+    cout<<"----"<<endl;
   }
-  //cout<<Rnorths<<endl;
+  cout<<Rnorths<<endl;
 
   Matrix<float,7,6,ColMajor> SSs;
   sufficientStatisticsOnTpS2GPU(qKarch_.data(), d_mu_karch_, 
@@ -214,7 +216,7 @@ void mmf::OptSO3ApproxGD::computeSuffcientStatistics()
     Ns_(j) = SSs(6,j);
     //cout<<"@j="<<j<<"\t"<< Ss_[j]<<endl;
   }
-  //cout<<xSums_<<endl;
-  //cout<<Ns_<<endl;
+  cout<<xSums_<<endl;
+  cout<<Ns_<<endl;
   
 }
