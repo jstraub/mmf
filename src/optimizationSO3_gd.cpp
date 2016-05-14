@@ -13,7 +13,7 @@ void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
 //    << "\td=" << d.transpose() << std::endl;
   float m = J->dot(d);
   while (*f-fNew < -c_*m*delta && delta > 1e-16) {
-    delta *= t_;
+    delta *= ddelta_;
     thetaNew = theta_+delta*d;
     //std::cout << thetaNew << std::endl;
     ComputeJacobian(thetaNew, N, NULL, &fNew);

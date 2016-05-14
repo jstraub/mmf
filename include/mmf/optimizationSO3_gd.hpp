@@ -55,7 +55,7 @@ class OptSO3GD : public OptSO3
 {
 public:
   OptSO3GD(float *d_weights =NULL)
-    : OptSO3(1.,1.,1.,d_weights), thr_(1.e-7), c_(0.1), t_(0.5)
+    : OptSO3(1.,1.,1.,d_weights), thr_(1.e-7), c_(0.1), ddelta_(0.5)
   {};
 
   virtual ~OptSO3GD() {};
@@ -64,7 +64,7 @@ protected:
   SO3f theta_;
   float thr_; // threshold for gradient descent
   float c_;
-  float t_;
+  float ddelta_;
 
   void ComputeJacobian(const SO3f& theta, uint32_t N, Eigen::Vector3f* J, float* f);
   void LineSearch(uint32_t N, Eigen::Vector3f* J, float* f);

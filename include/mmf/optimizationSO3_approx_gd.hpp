@@ -32,7 +32,7 @@ class OptSO3ApproxGD : public OptSO3
   public:
   OptSO3ApproxGD(float *d_weights =NULL):
     OptSO3(1.,1.,1.,d_weights), Ss_(6,Matrix2f::Identity()),
-    thr_(1.e-8), c_(0.1), t_(0.5)
+    thr_(1.e-8), c_(0.1), ddelta_(0.5)
   {
     checkCudaErrors(cudaMalloc((void **)&d_mu_karch_, 6*4*sizeof(float)));
     checkCudaErrors(cudaMalloc((void **)&d_p_, 6*3*sizeof(float)));
@@ -68,7 +68,7 @@ protected:
   SO3f theta_;
   float thr_; // threshold for gradient descent
   float c_;
-  float t_;
+  float ddelta_;
 
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t n, uint32_t maxIter);

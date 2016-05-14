@@ -5,12 +5,14 @@
 
 float mmf::OptSO3ApproxGD::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t& N)
 {
+//  std::cout << "R before" << std::endl;
+//  std::cout << R << std::endl;
 //  Timer t0;
   N =0;
   float res0 = this->computeAssignment(R,N)/float(N);
   if(this->t_ == 0){
    // init karcher means with columns of the rotation matrix (takes longer!)
-  qKarch_ << R.col(0),-R.col(0),R.col(1),-R.col(1),R.col(2),-R.col(2);
+    qKarch_ << R.col(0),-R.col(0),R.col(1),-R.col(1),R.col(2),-R.col(2);
 //    // init karcher means with rotated version of previous karcher means
 //    qKarch_ =  (this->Rprev_*R.transpose())*qKarch_; 
   }
@@ -77,6 +79,9 @@ float mmf::OptSO3ApproxGD::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     theta_ = thetaPrev;
   }
   R = theta_.matrix();
+
+  if (f > fPrev) return fPrev;
+  return f;
 }
 
 /* compute Jacobian */
@@ -128,7 +133,7 @@ void mmf::OptSO3ApproxGD::LineSearch(Eigen::Vector3f* J, float* f) {
 //    << "\td=" << d.transpose() << std::endl;
   float m = J->dot(d);
   while (*f-fNew < -c_*m*delta && delta > 1e-16) {
-    delta *= t_;
+    delta *= ddelta_;
     thetaNew = theta_+delta*d;
     //std::cout << thetaNew << std::endl;
     ComputeJacobian(thetaNew, NULL, &fNew);
@@ -144,8 +149,12 @@ Matrix<float,3,6> mmf::OptSO3ApproxGD::meanInTpS2_GPU(Matrix<float,3,6>& p)
   Matrix<float,4,6> mu_karch = Matrix<float,4,6>::Zero();
   float *h_mu_karch = mu_karch.data();
   float *h_p = p.data();
+//  std::cout << "around " << std::endl;
+//  std::cout << p << std::endl;
   meanInTpS2GPU(h_p, d_p_, h_mu_karch, d_mu_karch_, this->cld_.d_x(),
       this->cld_.d_z(), d_weights_, this->cld_.N());
+//  std::cout << "mu_karch from GPU" << std::endl;
+//  std::cout << mu_karch << std::endl;
   Matrix<float,3,6> mu = mu_karch.topRows(3);
   for(uint32_t i=0; i<6; ++i)
     if(mu_karch(3,i) >0)
@@ -199,7 +208,7 @@ void mmf::OptSO3ApproxGD::computeSuffcientStatistics()
 //    cout<<Rnorths.middleRows<2>(j*2)<<endl;
 //    cout<<"----"<<endl;
   }
-  cout<<Rnorths<<endl;
+//  cout<<Rnorths<<endl;
 
   Matrix<float,7,6,ColMajor> SSs;
   sufficientStatisticsOnTpS2GPU(qKarch_.data(), d_mu_karch_, 
