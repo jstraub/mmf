@@ -58,7 +58,7 @@ public:
   // grained to search 
   OptSO3GD(float sigma, float t_max = 1.0f, float dt = 0.1f, 
       float *d_weights =NULL)
-    : OptSO3(sigma,t_max,dt,d_weights), thr_(1.e-7), c_(0.1), t_(0.5)
+    : OptSO3(sigma,t_max,dt,d_weights), thr_(1.e-6), c_(0.1), t_(0.5)
   {};
 
   virtual ~OptSO3GD() {};

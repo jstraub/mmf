@@ -33,7 +33,7 @@ class OptSO3ApproxGD : public OptSO3
   OptSO3ApproxGD(float sigma, float t_max = 5.0f, float dt = 0.05f, 
       float *d_weights =NULL):
     OptSO3(sigma,t_max, dt, d_weights), Ss_(6,Matrix2f::Identity()),
-    thr_(1.e-8), c_(0.1), t_(0.5)
+    thr_(1.e-6), c_(0.1), t_(0.5)
   {
     checkCudaErrors(cudaMalloc((void **)&d_mu_karch_, 6*4*sizeof(float)));
     checkCudaErrors(cudaMalloc((void **)&d_p_, 6*3*sizeof(float)));
