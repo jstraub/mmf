@@ -5,6 +5,8 @@
 
 void mmf::OptSO3MMFvMF::init()
 {
+  std::cout << "mmf::OptSO3MMFvMF::init()" << std::endl;
+  std::cout << 3*6*K() << std::endl;
   checkCudaErrors(cudaMalloc((void **)&d_cost, K()*6*sizeof(float)));
   checkCudaErrors(cudaMalloc((void **)&d_J, 3*3*sizeof(float)));
   checkCudaErrors(cudaMalloc((void **)&d_mu_, K()*6*3*sizeof(float)));
@@ -89,6 +91,8 @@ void mmf::OptSO3MMFvMF::Rot2Device()
     mu(k+6*K()) = sign*Rs_[k/6](1,j);
     mu(k+12*K()) = sign*Rs_[k/6](2,j);
   }
+  std::cout << mu << std::endl;
+  std::cout << 3*6*K() << std::endl;
   checkCudaErrors(cudaMemcpy(d_mu_, (float*)mu.data(), 3*6*K()*sizeof(float),
         cudaMemcpyHostToDevice));
 }
