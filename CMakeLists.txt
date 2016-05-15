@@ -71,6 +71,7 @@ cuda_add_library(mmf SHARED
   ./src/optimizationSO3_vmfCF.cpp
   ./cuda/optimizationSO3_approx.cu
   ./cuda/optimizationSO3.cu
+  ./cuda/optimizationSO3_vmf.cu
   ./cuda/optimizationSO3_direct_gd.cu
   # jsCOre
 #  ./cuda/vectorSum_kernel.cu

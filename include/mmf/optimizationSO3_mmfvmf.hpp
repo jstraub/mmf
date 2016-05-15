@@ -23,23 +23,24 @@
 
 using namespace Eigen;
 
-extern void vMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
+extern void directSquaredAngleCostFctAssignmentGPU(float *h_cost, float *d_cost,
   uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights, 
-  uint32_t *d_z, float *d_mu, int N, int K);
+  uint32_t *d_z, float *d_mu, int N);
 
 namespace mmf{
 
 // closed form solution for the vMF cost function.
-class OptSO3vMFCF : public OptSO3
+class OptSO3MMFvMF : public OptSO3
 {
   public:
-  OptSO3vMFCF(float *d_weights =NULL):
+  OptSO3MMFvMF(float *d_weights =NULL):
     OptSO3(1.,1.,0.1,d_weights)
   { };
 
-  virtual ~OptSO3vMFCF() { };
+  virtual ~OptSO3MMFvMF() { };
 
 protected:
+  std::vector<Eigen::Matrix3f> Rs_;
 
   virtual float computeAssignment(Matrix3f& R, uint32_t& N);
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,

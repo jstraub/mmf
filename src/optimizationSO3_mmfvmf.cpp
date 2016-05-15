@@ -1,20 +1,20 @@
-/* Copyright (c) 2015, Julian Straub <jstraub@csail.mit.edu> Licensed
+/* Copyright (c) 2016, Julian Straub <jstraub@csail.mit.edu> Licensed
  * under the MIT license. See the license file LICENSE.
  */
-#include <mmf/optimizationSO3_vmfCF.hpp>
+#include <mmf/optimizationSO3_mmfvmf.hpp>
 
-float mmf::OptSO3vMFCF::computeAssignment(Matrix3f& R, uint32_t& N)
+float mmf::OptSO3MMFvMF::computeAssignment(Matrix3f& R, uint32_t& N)
 {
   Rot2Device(R);
   float residuals[6]; // for all 6 different axes
-  vMFCostFctAssignmentGPU(residuals, d_cost, &N, d_N_, cld_.d_x(),
-      d_weights_, cld_.d_z(), d_mu_, cld_.N(), 1);
+  directSquaredAngleCostFctAssignmentGPU(residuals, d_cost, &N, d_N_, cld_.d_x(),
+      d_weights_, cld_.d_z(), d_mu_, cld_.N());
   float residual = 0.0f;
   for (uint32_t i=0; i<6; ++i) residual +=  residuals[i];
   return residual;
 };
 
-float mmf::OptSO3vMFCF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t& N)
+float mmf::OptSO3MMFvMF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t& N)
 {
 //  Timer t0;
   N =0;
@@ -27,13 +27,13 @@ float mmf::OptSO3vMFCF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t&
   return res0; // cost fct value
 }
 
-void mmf::OptSO3vMFCF::conjugateGradientPostparation_impl(Matrix3f& R)
+void mmf::OptSO3MMFvMF::conjugateGradientPostparation_impl(Matrix3f& R)
 { };
 
-void mmf::OptSO3vMFCF::computeJacobian(Matrix3f&J, Matrix3f& R, float N) 
+void mmf::OptSO3MMFvMF::computeJacobian(Matrix3f&J, Matrix3f& R, float N) 
 { };
 
-float mmf::OptSO3vMFCF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
+float mmf::OptSO3MMFvMF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t n, uint32_t maxIter) {
   Eigen::Matrix3f N = Eigen::Matrix3f::Zero();
   for (uint32_t j=0; j<6; ++j) { 
@@ -50,7 +50,7 @@ float mmf::OptSO3vMFCF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
 }
 
 /* evaluate cost function for a given assignment of npormals to axes */
-float mmf::OptSO3vMFCF::evalCostFunction(Matrix3f& R)
+float mmf::OptSO3MMFvMF::evalCostFunction(Matrix3f& R)
 {
   float c = 0.0f;
   for (uint32_t j=0; j<6; ++j) { 
