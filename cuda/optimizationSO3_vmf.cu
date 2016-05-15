@@ -318,6 +318,7 @@ __global__ void MMFvMFCostFctAssignment(float *cost, uint32_t* W,
   }
 }
 
+
 extern void MMFvMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
   uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights,
   uint32_t *d_z, float *d_mu, int N, int K)
@@ -399,6 +400,13 @@ extern void MMFvMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
         cudaMemcpyDeviceToHost));
   checkCudaErrors(cudaMemcpy(h_W, d_W, sizeof(uint32_t), 
         cudaMemcpyDeviceToHost));
+}
+
+extern void vMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
+  uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights,
+  uint32_t *d_z, float *d_mu, int N) {
+  return MMFvMFCostFctAssignmentGPU(h_cost, d_cost, h_W, d_W, d_x,
+      d_weights, d_z, d_mu, N, 1) ;
 }
 
 

@@ -25,7 +25,7 @@ using namespace Eigen;
 
 extern void vMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
   uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights, 
-  uint32_t *d_z, float *d_mu, int N, int K);
+  uint32_t *d_z, float *d_mu, int N);
 
 namespace mmf{
 
