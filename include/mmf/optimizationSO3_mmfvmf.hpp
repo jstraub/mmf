@@ -34,9 +34,17 @@ class OptSO3MMFvMF : public OptSO3
 {
   public:
   OptSO3MMFvMF(uint32_t K, float *d_weights =NULL):
-    OptSO3(1.,1.,0.1,d_weights), Rs_(K, Eigen::Matrix3f::Identity())
+    OptSO3(1.,1.,0.1,d_weights)
   { 
+    for (uint32_t k=0; k<K; ++k)
+      Rs_.push_back(Eigen::Matrix3f::Identity());
     cld_ = jsc::ClDataGpu<float>(3,6*K);
+
+    if(d_cost) checkCudaErrors(cudaFree(d_cost));
+    if(d_mu_)  checkCudaErrors(cudaFree(d_mu_));
+    if(d_N_) checkCudaErrors(cudaFree(d_N_));
+
+    init();
   };
 
   virtual ~OptSO3MMFvMF() { };

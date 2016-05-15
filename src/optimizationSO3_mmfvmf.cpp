@@ -8,7 +8,6 @@ void mmf::OptSO3MMFvMF::init()
   std::cout << "mmf::OptSO3MMFvMF::init()" << std::endl;
   std::cout << 3*6*K() << std::endl;
   checkCudaErrors(cudaMalloc((void **)&d_cost, K()*6*sizeof(float)));
-  checkCudaErrors(cudaMalloc((void **)&d_J, 3*3*sizeof(float)));
   checkCudaErrors(cudaMalloc((void **)&d_mu_, K()*6*3*sizeof(float)));
   checkCudaErrors(cudaMalloc((void **)&d_N_, sizeof(int)));
   loadRGBvaluesForMFaxes();
@@ -34,8 +33,8 @@ float mmf::OptSO3MMFvMF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t
 #ifndef NDEBUG
   cout<<"xSums: "<<endl<<this->cld_.xSums()<<endl;
 #endif
-  cout<<"xSums: "<<endl<<this->cld_.xSums()<<endl;
-  cout<<"counts: "<<endl<<this->cld_.counts().transpose()<<endl;
+//  cout<<"xSums: "<<endl<<this->cld_.xSums()<<endl;
+//  cout<<"counts: "<<endl<<this->cld_.counts().transpose()<<endl;
 //  t0.toctic("----- sufficient statistics");
   return res0; // cost fct value
 }
@@ -49,6 +48,7 @@ void mmf::OptSO3MMFvMF::computeJacobian(Matrix3f&J, Matrix3f& R, float N)
 float mmf::OptSO3MMFvMF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t n, uint32_t maxIter) {
   float f = 0;
+
   for (uint32_t k=0; k<K(); ++k) {
     Eigen::Matrix3f N = Eigen::Matrix3f::Zero();
     for (uint32_t j=k*6; j<6*(k+1); ++j) { 
@@ -62,6 +62,16 @@ float mmf::OptSO3MMFvMF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     f += (N*R).trace();
     std::cout << Rs_[k] << std::endl;
   }
+
+  Eigen::VectorXf mfCounts = Eigen::VectorXf::Zero(K());
+  for (uint32_t k=0; k<K()*6; ++k) {
+    mfCounts(k/6) += this->cld_.counts()(k);
+  }
+  cout<<"counts: "<<endl<<this->cld_.counts().transpose()<<endl;
+  std::cout << " mf counts: " << mfCounts.transpose() << std::endl;
+  uint32_t iMax = 0;
+  mfCounts.maxCoeff(&iMax);
+  R = Rs_[iMax];
 //  std::cout << "N" << std::endl << N << std::endl;
 //  std::cout << "R" << std::endl << R << std::endl;
   return f;
@@ -85,14 +95,14 @@ void mmf::OptSO3MMFvMF::Rot2Device()
 {
   Eigen::MatrixXf mu(3,K()*6);
   for(uint32_t k=0; k<6*K(); ++k){
-    int j = k/2; // which of the rotation columns does this belong to
-    float sign = (- float(k%2) +0.5f)*2.0f; // sign of the axis
+    int j = (k%6)/2; // which of the rotation columns does this belong to
+    float sign = (- float((k%6)%2) +0.5f)*2.0f; // sign of the axis
     mu(k) = sign*Rs_[k/6](0,j);
     mu(k+6*K()) = sign*Rs_[k/6](1,j);
     mu(k+12*K()) = sign*Rs_[k/6](2,j);
   }
-  std::cout << mu << std::endl;
-  std::cout << 3*6*K() << std::endl;
+//  std::cout << mu << std::endl;
+//  std::cout << 3*6*K() << std::endl;
   checkCudaErrors(cudaMemcpy(d_mu_, (float*)mu.data(), 3*6*K()*sizeof(float),
         cudaMemcpyHostToDevice));
 }
