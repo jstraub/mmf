@@ -107,6 +107,9 @@ public:
   const spMatrixXf& x() {return this->cld_.x();};
   uint32_t N() const {return this->cld_.N();};
 
+  virtual std::vector<Eigen::Matrix3f> GetRs() { 
+    return std::vector<Eigen::Matrix3f>(1,Rprev_); };
+
 protected:
   virtual float conjugateGradientPreparation_impl(Matrix3f& R, uint32_t& N);
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0, uint32_t N, uint32_t maxIter=100);

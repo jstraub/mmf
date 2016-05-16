@@ -19,13 +19,13 @@
 //#include <mmf/defines.h>
 #include <mmf/sphereSimple.hpp>
 #include <mmf/optimizationSO3.hpp>
-//#include <mmf/timer.hpp>
+#include <jsCore/vmf.h>
 
 using namespace Eigen;
 
 extern void MMFvMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
   uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights, 
-  uint32_t *d_z, float *d_mu, int N, int K);
+  uint32_t *d_z, float *d_mu, float*d_pi, int N, int K);
 
 namespace mmf{
 
@@ -34,24 +34,26 @@ class OptSO3MMFvMF : public OptSO3
 {
   public:
   OptSO3MMFvMF(uint32_t K, float *d_weights =NULL):
-    OptSO3(1.,1.,0.1,d_weights)
+    OptSO3(1.,1.,0.1,d_weights), 
+    Rs_(K, Eigen::Matrix3f::Identity()),
+    pi_(K*6), taus_(Eigen::VectorXf::Ones(K*6))
   { 
-    for (uint32_t k=0; k<K; ++k)
-      Rs_.push_back(Eigen::Matrix3f::Identity());
+    // overwrite cld
     cld_ = jsc::ClDataGpu<float>(3,6*K);
-
     if(d_cost) checkCudaErrors(cudaFree(d_cost));
     if(d_mu_)  checkCudaErrors(cudaFree(d_mu_));
     if(d_N_) checkCudaErrors(cudaFree(d_N_));
-
     init();
   };
 
   virtual ~OptSO3MMFvMF() { };
   uint32_t K() {return Rs_.size();};
+  virtual std::vector<Eigen::Matrix3f> GetRs() { return Rs_; };
 
 protected:
   std::vector<Eigen::Matrix3f> Rs_;
+  jsc::GpuMatrix<float> pi_;
+  Eigen::VectorXf taus_;
 
   virtual float computeAssignment(uint32_t& N);
 

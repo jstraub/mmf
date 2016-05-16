@@ -25,7 +25,7 @@ using namespace Eigen;
 
 extern void vMFCostFctAssignmentGPU(float *h_cost, float *d_cost,
   uint32_t *h_W, uint32_t *d_W, float *d_x, float* d_weights, 
-  uint32_t *d_z, float *d_mu, int N);
+  uint32_t *d_z, float *d_mu, float* d_pi, int N);
 
 namespace mmf{
 
@@ -34,12 +34,16 @@ class OptSO3vMFCF : public OptSO3
 {
   public:
   OptSO3vMFCF(float *d_weights =NULL):
-    OptSO3(1.,1.,0.1,d_weights)
-  { };
+    OptSO3(1.,1.,0.1,d_weights), pi_(6)
+  { 
+    Eigen::VectorXf pi = Eigen::VectorXf::Ones(6)/6.;
+    pi_.set(pi);
+  };
 
   virtual ~OptSO3vMFCF() { };
 
 protected:
+  jsc::GpuMatrix<float> pi_;
 
   virtual float computeAssignment(Matrix3f& R, uint32_t& N);
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,

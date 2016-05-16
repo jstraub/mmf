@@ -8,7 +8,7 @@ float mmf::OptSO3vMFCF::computeAssignment(Matrix3f& R, uint32_t& N)
   Rot2Device(R);
   float residuals[6]; // for all 6 different axes
   vMFCostFctAssignmentGPU(residuals, d_cost, &N, d_N_, cld_.d_x(),
-      d_weights_, cld_.d_z(), d_mu_, cld_.N());
+      d_weights_, cld_.d_z(), d_mu_, pi_.data(), cld_.N());
   float residual = 0.0f;
   for (uint32_t i=0; i<6; ++i) residual +=  residuals[i];
   return residual;
