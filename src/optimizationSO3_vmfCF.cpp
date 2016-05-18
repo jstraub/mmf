@@ -36,6 +36,10 @@ void mmf::OptSO3vMFCF::computeJacobian(Matrix3f&J, Matrix3f& R, float N)
 float mmf::OptSO3vMFCF::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t n, uint32_t maxIter) {
   Eigen::Matrix3f N = Eigen::Matrix3f::Zero();
+  // tauR_*R^T is the contribution of the motion prior between two
+  // frames to regularize solution in case data exists only on certain
+  // axes
+  if (this->t_ >= 1) N += tauR_*R.transpose();
   for (uint32_t j=0; j<6; ++j) { 
     Eigen::Vector3f m = Eigen::Vector3f::Zero();
     m(j/2) = j%2==0?-1.:1.;

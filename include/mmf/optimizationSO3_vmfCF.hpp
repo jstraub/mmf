@@ -34,8 +34,7 @@ class OptSO3vMFCF : public OptSO3
 {
   public:
   OptSO3vMFCF(float *d_weights =NULL):
-    OptSO3(1.,1.,0.1,d_weights), pi_(6)
-  { 
+    OptSO3(1.,1.,0.1,d_weights), pi_(6), tauR_(10) { 
     Eigen::VectorXf pi = Eigen::VectorXf::Ones(6)/6.;
     pi_.set(pi);
   };
@@ -44,6 +43,7 @@ class OptSO3vMFCF : public OptSO3
 
 protected:
   jsc::GpuMatrix<float> pi_;
+  float tauR_; // concentration of vMF on rotation from previous to current frame
 
   virtual float computeAssignment(Matrix3f& R, uint32_t& N);
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,
