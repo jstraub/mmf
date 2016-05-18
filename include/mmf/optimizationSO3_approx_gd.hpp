@@ -32,7 +32,7 @@ class OptSO3ApproxGD : public OptSO3
   public:
   OptSO3ApproxGD(float *d_weights =NULL):
     OptSO3(1.,1.,1.,d_weights), Ss_(6,Matrix2f::Identity()),
-    thr_(1.e-8), c_(0.1), ddelta_(0.5)
+    thr_(1.e-8), c_(0.1), ddelta_(0.5), tauR_(1.)
   {
     checkCudaErrors(cudaMalloc((void **)&d_mu_karch_, 6*4*sizeof(float)));
     checkCudaErrors(cudaMalloc((void **)&d_p_, 6*3*sizeof(float)));
@@ -66,14 +66,17 @@ protected:
   Matrix<float,2,6> xSums_; // sum over all vectors for each axis
   vector<Matrix2f> Ss_; // sum over outer products of data in tangent spaces
   SO3f theta_;
+  SO3f thetaPrev_;
   float thr_; // threshold for gradient descent
   float c_;
   float ddelta_;
+  float tauR_;
 
   virtual float conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t n, uint32_t maxIter);
 
-  void ComputeJacobian(const SO3f& theta, Eigen::Vector3f* J, float* f);
+  void ComputeJacobian(const SO3f& thetaPrev, const SO3f& theta,
+      Eigen::Vector3f* J, float* f);
   void LineSearch(Eigen::Vector3f* J, float* f);
 
   virtual void conjugateGradientPostparation_impl(Matrix3f& R);

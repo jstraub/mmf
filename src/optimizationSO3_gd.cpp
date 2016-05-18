@@ -6,7 +6,7 @@
 void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
   float delta = 1.;
   SO3f thetaNew = theta_;
-  ComputeJacobian(thetaNew, N, J, f);
+  ComputeJacobian(thetaPrev_, thetaNew, N, J, f);
   float fNew = *f;
   Eigen::Vector3f d = -(*J)/J->norm();
 //  std::cout << "\tJ=" << J->transpose() << std::endl
@@ -16,7 +16,7 @@ void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
     delta *= ddelta_;
     thetaNew = theta_+delta*d;
     //std::cout << thetaNew << std::endl;
-    ComputeJacobian(thetaNew, N, NULL, &fNew);
+    ComputeJacobian(thetaPrev_, thetaNew, N, NULL, &fNew);
 //    std::cout << *f-fNew << " <? " << -c_*m*delta 
 //      << "\tfNew=" << fNew << "\tdelta=" << delta << std::endl;
   }
@@ -24,21 +24,23 @@ void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
   *f = fNew;
 }
 
-void mmf::OptSO3GD::ComputeJacobian(const SO3f& theta, uint32_t N,
-    Eigen::Vector3f* J, float* f) {
+void mmf::OptSO3GD::ComputeJacobian(const SO3f& thetaPrev, const SO3f&
+    theta, uint32_t N, Eigen::Vector3f* J, float* f) {
   Eigen::Matrix3f R = theta.matrix();
+  Eigen::Matrix3f Rprev = thetaPrev.matrix();
 
   Rot2Device(R);
   if (f) {
     float residuals[6]; // for all 6 different axes
     directSquaredAngleCostFctGPU(residuals, d_cost, cld_.d_x(),
         d_weights_, cld_.d_z(), d_mu_, cld_.N());
-    *f = 0.0f;
+    *f = tauR_*(Rprev.transpose()*R).trace();
     for (uint32_t i=0; i<6; ++i)  *f +=  residuals[i];
     *f /= -N;
   }
   if (J) {
-    *J = Vector3f::Zero();
+    for (uint32_t k=0; k<3; ++k)
+      (*J)(k) = tauR_*(Rprev.transpose()*SO3f::G(k)*R).trace();
     directSquaredAngleCostFctJacobianGPU(J->data(), d_J,
         cld_.d_x(), d_weights_, cld_.d_z(), d_mu_, cld_.N());
     *J /= -N;
@@ -65,7 +67,8 @@ float mmf::OptSO3GD::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
     uint32_t N, uint32_t maxIter)
 {
   theta_ = SO3f(R);
-  SO3f thetaPrev(R);
+  thetaPrev_ = SO3f(R); // this is the previous on the high level
+  SO3f thetaPrev(R); // this is the previous before each update to theta_
   Eigen::Vector3f J = Eigen::Vector3f::Zero(); 
   float fPrev = 1e12;
   float f = res0;

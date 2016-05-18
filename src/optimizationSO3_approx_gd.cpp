@@ -85,16 +85,21 @@ float mmf::OptSO3ApproxGD::conjugateGradientCUDA_impl(Matrix3f& R, float res0,
 }
 
 /* compute Jacobian */
-void mmf::OptSO3ApproxGD::ComputeJacobian(const SO3f& theta,
-    Eigen::Vector3f* J, float* f) {
+void mmf::OptSO3ApproxGD::ComputeJacobian(const SO3f& thetaPrev, const
+    SO3f& theta, Eigen::Vector3f* J, float* f) {
   Eigen::Matrix3f R = theta.matrix();
+  Eigen::Matrix3f Rprev = thetaPrev.matrix();
+
 #ifndef NDEBUG
   cout<<"qKarch"<<endl<<qKarch_<<endl;
   cout<<"xSums_"<<endl<<xSums_<<endl;
   cout<<"Ns_"<<endl<<Ns_<<endl;
 #endif
-  if(J) *J = Vector3f::Zero();
-  if(f) *f = 0.;
+
+  if(J) for (uint32_t k=0; k<3; ++k)
+      (*J)(k) = tauR_*(Rprev.transpose()*SO3f::G(k)*R).trace();
+  if(f) *f = tauR_*(Rprev.transpose()*R).trace();
+
   for (uint32_t j=0; j<6; ++j) { 
     if (Ns_(j) == 0) continue;
     Eigen::Vector3f m = Eigen::Vector3f::Zero();
@@ -126,7 +131,7 @@ void mmf::OptSO3ApproxGD::ComputeJacobian(const SO3f& theta,
 void mmf::OptSO3ApproxGD::LineSearch(Eigen::Vector3f* J, float* f) {
   float delta = 1.;
   SO3f thetaNew = theta_;
-  ComputeJacobian(thetaNew, J, f);
+  ComputeJacobian(thetaPrev_, thetaNew, J, f);
   float fNew = *f;
   Eigen::Vector3f d = -(*J)/J->norm();
 //  std::cout << "\tJ=" << J->transpose() << std::endl
@@ -136,7 +141,7 @@ void mmf::OptSO3ApproxGD::LineSearch(Eigen::Vector3f* J, float* f) {
     delta *= ddelta_;
     thetaNew = theta_+delta*d;
     //std::cout << thetaNew << std::endl;
-    ComputeJacobian(thetaNew, NULL, &fNew);
+    ComputeJacobian(thetaPrev_, thetaNew, NULL, &fNew);
 //    std::cout << *f-fNew << " <? " << -c_*m*delta 
 //      << "\tfNew=" << fNew << "\tdelta=" << delta << std::endl;
   }
