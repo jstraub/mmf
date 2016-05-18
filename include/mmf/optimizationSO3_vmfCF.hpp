@@ -34,7 +34,7 @@ class OptSO3vMFCF : public OptSO3
 {
   public:
   OptSO3vMFCF(float *d_weights =NULL):
-    OptSO3(1.,1.,0.1,d_weights), pi_(6), tauR_(10) { 
+    OptSO3(1.,1.,0.1,d_weights), pi_(6), tauR_(1) { 
     Eigen::VectorXf pi = Eigen::VectorXf::Ones(6)/6.;
     pi_.set(pi);
   };
