@@ -4,7 +4,7 @@
 #include <mmf/optimizationSO3_gd.hpp>
 
 void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
-  float delta = 1.;
+  float delta = 0.1;
   SO3f thetaNew = theta_;
   ComputeJacobian(thetaPrev_, thetaNew, N, J, f);
   float fNew = *f;
@@ -12,6 +12,7 @@ void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
 //  std::cout << "\tJ=" << J->transpose() << std::endl
 //    << "\td=" << d.transpose() << std::endl;
   float m = J->dot(d);
+  uint32_t it = 0;
   while (*f-fNew < -c_*m*delta && delta > 1e-16) {
     delta *= ddelta_;
     thetaNew = theta_+delta*d;
@@ -19,7 +20,9 @@ void mmf::OptSO3GD::LineSearch(uint32_t N, Eigen::Vector3f* J, float* f) {
     ComputeJacobian(thetaPrev_, thetaNew, N, NULL, &fNew);
 //    std::cout << *f-fNew << " <? " << -c_*m*delta 
 //      << "\tfNew=" << fNew << "\tdelta=" << delta << std::endl;
+    ++it;
   }
+  std::cout << "# linesearch: " << it << std::endl;
   *J = delta*d;
   *f = fNew;
 }

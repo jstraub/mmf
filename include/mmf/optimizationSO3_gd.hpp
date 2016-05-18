@@ -55,7 +55,7 @@ class OptSO3GD : public OptSO3
 {
 public:
   OptSO3GD(float *d_weights =NULL)
-    : OptSO3(1.,1.,1.,d_weights), thr_(1.e-7), c_(0.1), ddelta_(0.5), tauR_(1.)
+    : OptSO3(1.,1.,1.,d_weights), thr_(1.e-6), c_(0.1), ddelta_(0.1), tauR_(1.)
   {};
 
   virtual ~OptSO3GD() {};
