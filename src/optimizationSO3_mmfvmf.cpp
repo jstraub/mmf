@@ -16,31 +16,51 @@ void mmf::OptSO3MMFvMF::init()
 
 float mmf::OptSO3MMFvMF::computeAssignment(uint32_t& N)
 {
+  N = this->cld_.counts().sum();
   // Compute log of the cluster weights and push them to GPU
-  Eigen::VectorXf pi(K()*6);;
+  Eigen::VectorXf pi = Eigen::VectorXf::Ones(K()*6)*1000;
   std::cout << this->t_ << std::endl;
+  std::cout<<"counts: "<<this->cld_.counts().transpose()<<std::endl;
   if (this->t_ == 0) {
     pi.fill(1.);
+  } else if (this->t_ >24) {
+    std::cout << "truncating noisy MFs: " << std::endl;
+    for (uint32_t k=0; k<K()*6; ++k) {
+      float count = this->cld_.counts().middleRows((k/6)*6,6).sum();
+      pi(k) =  count > 0.15*N ? count : 1.e-20;
+      std::cout << count  << " < " << 0.1*N << std::endl;
+    }
   } else {
-    pi = this->cld_.counts();
-    pi = pi.array() + 100000.;
+    // estimate the axis and MF proportions
+//    pi += this->cld_.counts();
+    // estimate only the MF proportions
     for (uint32_t k=0; k<K()*6; ++k)
-      if (this->cld_.counts()(k) == 0) {
-        taus_(k) = 0.; // uniform
-      } else {
-        Eigen::Vector3f mu = Eigen::Vector3f::Zero();
-        mu((k%6)/2) = (k%6)%2==0?-1.:1.;
-        mu = Rs_[k/6]*mu;
-        taus_(k) = jsc::vMF<3>::MLEstimateTau(this->cld_.xSums().col(k).cast<double>(),
-            mu.cast<double>(), this->cld_.counts()(k));
+      pi(k) += this->cld_.counts().middleRows((k/6)*6,6).sum();
+    if (estimateTau_) {
+      for (uint32_t k=0; k<K()*6; ++k)
+        if (this->cld_.counts()(k) == 0) {
+          taus_(k) = 0.; // uniform
+        } else {
+          Eigen::Vector3f mu = Eigen::Vector3f::Zero();
+          mu((k%6)/2) = (k%6)%2==0?-1.:1.;
+          mu = Rs_[k/6]*mu;
+          taus_(k) = jsc::vMF<3>::MLEstimateTau(
+              this->cld_.xSums().col(k).cast<double>(),
+              mu.cast<double>(), this->cld_.counts()(k));
+        }
+    } else {
+      taus_.fill(100.);
     }
   }
-  std::cout<<"counts: "<<this->cld_.counts().transpose()<<std::endl;
+  std::cout<<"pi: "<<pi.transpose()<<std::endl;
   pi = (pi.array() / pi.sum()).array().log();
-  std::cout << pi.transpose() << std::endl;
-  std::cout << taus_.transpose() << std::endl;
-  for (uint32_t k=0; k<K()*6; ++k) {
-    pi(k) -= jsc::vMF<3>::log2SinhOverZ(taus_(k)) - log(2.*M_PI);
+  std::cout<<"pi: "<<pi.transpose()<<std::endl;
+  if (estimateTau_) {
+    std::cout << pi.transpose() << std::endl;
+    std::cout << taus_.transpose() << std::endl;
+    for (uint32_t k=0; k<K()*6; ++k) {
+      pi(k) -= jsc::vMF<3>::log2SinhOverZ(taus_(k)) - log(2.*M_PI);
+    }
   }
   pi_.set(pi);
   Rot2Device();
@@ -61,8 +81,6 @@ float mmf::OptSO3MMFvMF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t
 #ifndef NDEBUG
   cout<<"xSums: "<<endl<<this->cld_.xSums()<<endl;
 #endif
-
-
 //  cout<<"xSums: "<<endl<<this->cld_.xSums()<<endl;
 //  cout<<"counts: "<<endl<<this->cld_.counts().transpose()<<endl;
 //  t0.toctic("----- sufficient statistics");
@@ -70,7 +88,34 @@ float mmf::OptSO3MMFvMF::conjugateGradientPreparation_impl(Matrix3f& R, uint32_t
 }
 
 void mmf::OptSO3MMFvMF::conjugateGradientPostparation_impl(Matrix3f& R)
-{ };
+{ 
+  if (this->t_ >=29) {
+    std::vector<int32_t> labelMap(6*K(),1000);
+    uint32_t j = 0;
+    for (uint32_t k=0; k<K(); ++k) {
+      float count = this->cld_.counts().middleRows(k*6,6).sum();
+      std::cout << count << std::endl;
+      if (count > 0) {
+        for (uint32_t l=0; l<6; ++l) labelMap[k*6+l] = j*6+l;
+        Rs_[j] = Rs_[k];
+        taus_.middleRows(j*6,6) = taus_.middleRows(k*6,6);
+        ++j;
+        std::cout << "deleting empty MFs: " << k << std::endl;
+      }
+//      std::cout << k << "->" << labelMap[k] << std::endl;
+    }
+    uint32_t Knew = j;
+    if (Knew < K()) {
+      Rs_ = std::vector<Eigen::Matrix3f>(Rs_.begin(), Rs_.begin()+Knew);
+      pi_.resize(Knew*6,1);
+      taus_ = taus_.topRows(Knew*6);
+      cld_.labelMap(labelMap);
+      cld_.updateK(Knew*6);
+      this->cld_.computeSS();
+      cout<<"counts: "<<endl<<this->cld_.counts().transpose()<<endl;
+    }
+  }
+};
 
 void mmf::OptSO3MMFvMF::computeJacobian(Matrix3f&J, Matrix3f& R, float N) 
 { };

@@ -19,6 +19,7 @@
 //#include <mmf/defines.h>
 #include <mmf/sphereSimple.hpp>
 #include <mmf/optimizationSO3.hpp>
+#include <manifold/SO3.h>
 #include <jsCore/vmf.h>
 
 using namespace Eigen;
@@ -36,13 +37,16 @@ class OptSO3MMFvMF : public OptSO3
   OptSO3MMFvMF(uint32_t K, float *d_weights =NULL):
     OptSO3(1.,1.,0.1,d_weights), 
     Rs_(K, Eigen::Matrix3f::Identity()),
-    pi_(K*6), taus_(Eigen::VectorXf::Ones(K*6))
+    pi_(K*6), taus_(Eigen::VectorXf::Ones(K*6)),
+    estimateTau_(false)
   { 
     // overwrite cld
     cld_ = jsc::ClDataGpu<float>(3,6*K);
     if(d_cost) checkCudaErrors(cudaFree(d_cost));
     if(d_mu_)  checkCudaErrors(cudaFree(d_mu_));
     if(d_N_) checkCudaErrors(cudaFree(d_N_));
+    for (uint32_t k=0; k<K; ++k)
+      Rs_[k] = SO3f::Random().matrix();
     init();
   };
 
@@ -54,6 +58,7 @@ protected:
   std::vector<Eigen::Matrix3f> Rs_;
   jsc::GpuMatrix<float> pi_;
   Eigen::VectorXf taus_;
+  bool estimateTau_;
 
   virtual float computeAssignment(uint32_t& N);
 
