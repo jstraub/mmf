@@ -27,7 +27,7 @@ float mmf::OptSO3MMFvMF::computeAssignment(uint32_t& N)
     std::cout << "truncating noisy MFs: " << std::endl;
     for (uint32_t k=0; k<K()*6; ++k) {
       float count = this->cld_.counts().middleRows((k/6)*6,6).sum();
-      pi(k) =  count > 0.15*N ? count : 1.e-20;
+      pi(k) =  count > 0.10*N ? count : 1.e-20;
       std::cout << count  << " < " << 0.1*N << std::endl;
     }
   } else {
@@ -49,7 +49,7 @@ float mmf::OptSO3MMFvMF::computeAssignment(uint32_t& N)
               mu.cast<double>(), this->cld_.counts()(k));
         }
     } else {
-      taus_.fill(100.);
+      taus_.fill(60.);
     }
   }
   std::cout<<"pi: "<<pi.transpose()<<std::endl;
